@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐桌全魚大盲測 - 手繪插畫版</title>
+    <style>
+        :root {
+            --primary-color: #ff7043;
+            --primary-dark: #d84315;
+            --bg-color: #fff9ed;
+            --card-bg: #ffffff;
+            --text-color: #424242;
+            --green-light: #e8f5e9;
+            --green-border: #4caf50;
+            --red-light: #ffebee;
+            --red-border: #ef5350;
+            --accent-blue: #29b6f6;
+            --yellow-accent: #ffe082;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#ffe0b2 20%, transparent 20%);
+            background-size: 24px 24px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            color: var(--text-color);
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 720px;
+            border-radius: 28px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            padding: 25px;
+            border: 5px solid var(--yellow-accent);
+            position: relative;
+        }
+
+        /* 頂部控制列 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #fff3e0;
+            padding: 10px 18px;
+            border-radius: 20px;
+        }
+
+        .progress-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .tts-btn {
+            background-color: #ffffff;
+            border: 2px solid var(--accent-blue);
+            color: #0288d1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.1s;
+        }
+        .tts-btn:active { transform: scale(0.95); }
+
+        /* 題目區塊 */
+        .question-wrapper {
+            display: flex;
+            gap: 15px;
+            background-color: #fffde7;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .food-svg-box {
+            width: 110px;
+            height: 110px;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 3px solid #ffe082;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 8px;
+        }
+
+        .question-content { flex-grow: 1; }
+
+        .question-title {
+            font-size: 1.35rem;
+            line-height: 1.5;
+            font-weight: bold;
+            color: #3e2723;
+            margin-bottom: 8px;
+        }
+
+        .question-hint-btn {
+            background: #e0f7fa;
+            border: 1px solid #00acc1;
+            color: #00838f;
+            border-radius: 12px;
+            padding: 6px 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .hint-text {
+            background-color: #ffffff;
+            border: 2px dashed #ffd54f;
+            padding: 10px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 1.05rem;
+            color: #5d4037;
+            display: none;
+        }
+
+        /* 選項清單 */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #ffffff;
+            border: 3px solid #e0e0e0;
+            border-radius: 18px;
+            padding: 10px 15px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #424242;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #fff3e0;
+        }
+
+        .option-svg-box {
+            width: 80px;
+            height: 70px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 5px;
+        }
+
+        .option-btn.correct {
+            background-color: var(--green-light) !important;
+            border-color: var(--green-border) !important;
+            color: #1b5e20 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--red-light) !important;
+            border-color: var(--red-border) !important;
+            opacity: 0.7;
+        }
+
+        /* 反饋提示框 */
+        .feedback-box {
+            margin-top: 15px;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .feedback-box.correct-bg { background-color: var(--green-light); border: 2px solid var(--green-border); color: #1b5e20; }
+        .feedback-box.wrong-bg { background-color: var(--red-light); border: 2px solid var(--red-border); color: #b71c1c; }
+
+        .btn-next {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 15px auto 0;
+            box-shadow: 0 4px 10px rgba(255, 112, 67, 0.4);
+        }
+        .btn-next:hover { background-color: var(--primary-dark); }
+        .hide { display: none !important; }
+
+        /* 開始與結果頁面 */
+        .start-card, .result-card { text-align: center; padding: 20px; }
+        .main-title { font-size: 2.2rem; color: var(--primary-dark); margin-bottom: 12px; }
+        .desc-text { font-size: 1.2rem; line-height: 1.6; color: #5d4037; margin-bottom: 25px; }
+        .big-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 35px;
+            padding: 16px 45px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 112, 67, 0.4);
+            transition: transform 0.2s;
+        }
+        .big-btn:hover { transform: scale(1.05); }
+        .score-badge { font-size: 3.5rem; font-weight: bold; color: var(--primary-dark); margin: 15px 0; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .question-wrapper { flex-direction: column; text-align: center; }
+            .food-svg-box { width: 130px; height: 130px; }
+            .option-btn { flex-direction: column; text-align: center; }
+            .option-svg-box { width: 100%; height: 90px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 開始畫面 -->
+        <div id="start-screen" class="start-card">
+            <div style="width: 140px; height: 140px; margin: 0 auto 15px;">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <circle cx="50" cy="50" r="45" fill="#FFE082" />
+                    <path d="M 20 50 Q 50 20 80 50 Q 50 80 20 50 Z" fill="#29B6F6" stroke="#0288D1" stroke-width="3"/>
+                    <circle cx="68" cy="42" r="4" fill="#FFF"/><circle cx="69" cy="42" r="2" fill="#000"/>
+                    <path d="M 15 50 L 5 40 L 5 60 Z" fill="#29B6F6" stroke="#0288D1" stroke-width="3"/>
+                    <path d="M 40 30 Q 50 10 60 30" fill="none" stroke="#FFA726" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1 class="main-title">🎨 餐桌全魚大盲測</h1>
+            <p class="desc-text">
+                天天吃美味的海鮮，你認得牠們在大海裡的真實模樣嗎？<br>
+                觀察手繪插畫與特徵提示，找出正確的海洋生物吧！
+            </p>
+            <button class="big-btn" onclick="startQuiz()">開始盲測 🔍</button>
+        </div>
+
+        <!-- 測驗進行畫面 -->
+        <div id="quiz-screen" class="hide">
+            <div class="top-bar">
+                <span id="question-progress" class="progress-text">第 1 / 5 題</span>
+                <button class="tts-btn" onclick="readCurrentQuestion()">🔊 聽題目</button>
+            </div>
+
+            <div class="question-wrapper">
+                <div id="food-svg" class="food-svg-box"></div>
+                <div class="question-content">
+                    <div id="question-text" class="question-title"></div>
+                    <button class="question-hint-btn" onclick="toggleHint()">💡 提示小幫手</button>
+                    <div id="hint-text" class="hint-text"></div>
+                </div>
+            </div>
+
+            <div id="options-container" class="options-list"></div>
+
+            <div id="feedback-box" class="feedback-box">
+                <div id="feedback-title" style="font-weight: bold; font-size: 1.25rem; margin-bottom: 6px;"></div>
+                <div id="feedback-detail"></div>
+                <button id="next-btn" class="btn-next" onclick="nextQuestion()">下一題 ➔</button>
+            </div>
+        </div>
+
+        <!-- 結果結算畫面 -->
+        <div id="result-screen" class="result-card hide">
+            <div style="width: 120px; height: 120px; margin: 0 auto;">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <circle cx="50" cy="50" r="42" fill="#FFF9C4" stroke="#FBC02D" stroke-width="4"/>
+                    <path d="M 30 40 L 42 30 L 58 30 L 70 40 L 62 70 L 38 70 Z" fill="#FFA726" stroke="#E65100" stroke-width="3"/>
+                    <circle cx="50" cy="50" r="12" fill="#FFD54F" stroke="#F57C00" stroke-width="2"/>
+                </svg>
+            </div>
+            <h2 style="color: var(--primary-dark); font-size: 2rem; margin-top: 10px;">測驗完成！</h2>
+            <div id="score-text" class="score-badge">100 分</div>
+            <p id="result-msg" class="desc-text"></p>
+            <button class="big-btn" onclick="location.reload()">再玩一次 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const svgIcons = {
+            friedFish: `<svg viewBox="0 0 100 100" width="100%"><rect x="15" y="30" width="70" height="45" rx="15" fill="#FB8C00" stroke="#E65100" stroke-width="3"/><path d="M 25 42 Q 50 32 75 42 M 20 58 Q 50 48 80 58" stroke="#FFE082" stroke-width="4" stroke-linecap="round"/><path d="M 65 18 Q 85 18 75 35 Z" fill="#FFEB3B" stroke="#F57F17" stroke-width="2"/></svg>`,
+            panFriedFish: `<svg viewBox="0 0 100 100" width="100%"><rect x="20" y="25" width="60" height="50" rx="8" fill="#FFB74D" stroke="#E65100" stroke-width="3"/><line x1="32" y1="35" x2="48" y2="65" stroke="#D84315" stroke-width="4" stroke-linecap="round"/><line x1="52" y1="35" x2="68" y2="65" stroke="#D84315" stroke-width="4" stroke-linecap="round"/><circle cx="28" cy="50" r="3" fill="#FFF"/><circle cx="72" cy="50" r="3" fill="#FFF"/></svg>`,
+            grilledMackerel: `<svg viewBox="0 0 100 100" width="100%"><path d="M 10 50 Q 50 20 90 50 Q 50 80 10 50 Z" fill="#D84315" stroke="#BF360C" stroke-width="3"/><path d="M 30 32 Q 35 45 40 32 M 50 30 Q 55 45 60 30 M 70 32 Q 75 45 80 32" stroke="#263238" stroke-width="3" fill="none"/><line x1="30" y1="50" x2="70" y2="50" stroke="#FFE082" stroke-width="3" stroke-dasharray="4,4"/></svg>`,
+            grilledSquid: `<svg viewBox="0 0 100 100" width="100%"><path d="M 50 12 L 75 42 Q 75 72 50 72 Q 25 72 25 42 Z" fill="#FB8C00" stroke="#D84315" stroke-width="3"/><line x1="50" y1="8" x2="50" y2="92" stroke="#8D6E63" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="32" x2="70" y2="32" stroke="#BF360C" stroke-width="3"/><line x1="32" y1="46" x2="68" y2="46" stroke="#BF360C" stroke-width="3"/><line x1="35" y1="58" x2="65" y2="58" stroke="#BF360C" stroke-width="3"/></svg>`,
+            oysterOmelet: `<svg viewBox="0 0 100 100" width="100%"><circle cx="50" cy="50" r="40" fill="#FFCA28" stroke="#FFA000" stroke-width="3"/><path d="M 25 45 Q 50 30 75 40 Q 80 65 50 70 Q 20 60 25 45 Z" fill="#66BB6A" opacity="0.7"/><circle cx="40" cy="45" r="7" fill="#78909C"/><circle cx="60" cy="55" r="8" fill="#78909C"/><circle cx="45" cy="65" r="6" fill="#78909C"/><path d="M 30 35 Q 50 20 70 35 Q 60 70 30 50 Z" fill="#EF5350" opacity="0.85"/></svg>`,
+
+            mahiMahi: `<svg viewBox="0 0 100 100" width="100%"><path d="M 20 25 L 50 20 Q 85 30 90 55 Q 60 75 20 60 Z" fill="#26A69A" stroke="#004D40" stroke-width="3"/><path d="M 20 25 Q 15 50 20 60 Z" fill="#80CBC4" stroke="#004D40" stroke-width="3"/><path d="M 20 60 L 85 55 Q 60 75 20 60 Z" fill="#FFEE58"/><circle cx="35" cy="35" r="4" fill="#FFF"/><circle cx="36" cy="35" r="2" fill="#000"/><path d="M 88 50 L 98 40 L 96 62 Z" fill="#FFEE58" stroke="#004D40" stroke-width="2"/></svg>`,
+            tuna: `<svg viewBox="0 0 100 100" width="100%"><path d="M 10 50 Q 50 15 85 50 Q 50 85 10 50 Z" fill="#1565C0" stroke="#0D47A1" stroke-width="3"/><path d="M 10 50 Q 50 85 85 50 Z" fill="#ECEFF1"/><circle cx="25" cy="42" r="4" fill="#FFF"/><circle cx="26" cy="42" r="2" fill="#000"/><path d="M 85 50 L 98 35 L 98 65 Z" fill="#1565C0" stroke="#0D47A1" stroke-width="2"/></svg>`,
+            salmon: `<svg viewBox="0 0 100 100" width="100%"><path d="M 10 50 Q 50 20 85 50 Q 50 80 10 50 Z" fill="#FF8A65" stroke="#D84315" stroke-width="3"/><circle cx="25" cy="42" r="4" fill="#FFF"/><circle cx="26" cy="42" r="2" fill="#000"/><circle cx="45" cy="32" r="2" fill="#37474F"/><circle cx="55" cy="30" r="2" fill="#37474F"/><circle cx="65" cy="35" r="2" fill="#37474F"/><path d="M 85 50 L 98 38 L 98 62 Z" fill="#FF8A65" stroke="#D84315" stroke-width="2"/></svg>`,
+            
+            cutlassfish: `<svg viewBox="0 0 100 100" width="100%"><path d="M 5 45 Q 40 38 95 50 Q 40 52 5 45 Z" fill="#CFD8DC" stroke="#455A64" stroke-width="3"/><path d="M 15 40 Q 50 35 85 45" stroke="#90A4AE" stroke-width="3" fill="none"/><circle cx="15" cy="43" r="3" fill="#FFF"/><circle cx="15" cy="43" r="1.5" fill="#000"/><path d="M 5 45 L 2 38 L 8 40 Z" fill="#455A64"/></svg>`,
+            eel: `<svg viewBox="0 0 100 100" width="100%"><path d="M 10 50 Q 30 20 50 50 T 90 50" fill="none" stroke="#37474F" stroke-width="12" stroke-linecap="round"/><circle cx="16" cy="44" r="2" fill="#FFF"/></svg>`,
+            saury: `<svg viewBox="0 0 100 100" width="100%"><path d="M 5 50 Q 45 32 90 50 Q 45 68 5 50 Z" fill="#546E7A" stroke="#263238" stroke-width="3"/><path d="M 5 50 Q 45 68 90 50 Z" fill="#ECEFF1"/><circle cx="18" cy="46" r="3" fill="#FFF"/><circle cx="18" cy="46" r="1.5" fill="#000"/><path d="M 90 50 L 98 42 L 98 58 Z" fill="#546E7A"/></svg>`,
+
+            mackerel: `<svg viewBox="0 0 100 100" width="100%"><path d="M 10 50 Q 50 18 85 50 Q 50 82 10 50 Z" fill="#0288D1" stroke="#01579B" stroke-width="3"/><path d="M 10 50 Q 50 82 85 50 Z" fill="#ECEFF1"/><path d="M 30 28 Q 33 38 38 28 M 45 25 Q 48 38 53 25 M 60 28 Q 63 38 68 28" stroke="#01579B" stroke-width="3" fill="none"/><circle cx="22" cy="42" r="4" fill="#FFF"/><circle cx="23" cy="42" r="2" fill="#000"/><path d="M 85 50 L 98 38 L 98 62 Z" fill="#0288D1" stroke="#01579B" stroke-width="2"/></svg>`,
+            tilapia: `<svg viewBox="0 0 100 100" width="100%"><path d="M 12 50 Q 45 15 82 50 Q 45 85 12 50 Z" fill="#689F38" stroke="#33691E" stroke-width="3"/><line x1="40" y1="28" x2="40" y2="72" stroke="#33691E" stroke-width="3"/><line x1="52" y1="25" x2="52" y2="75" stroke="#33691E" stroke-width="3"/><line x1="64" y1="28" x2="64" y2="72" stroke="#33691E" stroke-width="3"/><circle cx="26" cy="42" r="4" fill="#FFF"/><circle cx="27" cy="42" r="2" fill="#000"/><path d="M 82 50 L 96 36 L 96 64 Z" fill="#689F38" stroke="#33691E" stroke-width="2"/></svg>`,
+            milkFish: `<svg viewBox="0 0 100 100" width="100%"><path d="M 10 50 Q 50 22 85 50 Q 50 78 10 50 Z" fill="#B0BEC5" stroke="#37474F" stroke-width="3"/><path d="M 10 50 Q 50 78 85 50 Z" fill="#FFFFFF"/><circle cx="22" cy="43" r="5" fill="#FFF"/><circle cx="23" cy="43" r="2.5" fill="#000"/><path d="M 85 50 L 98 32 L 90 50 L 98 68 Z" fill="#78909C" stroke="#37474F" stroke-width="2"/></svg>`,
+
+            squid: `<svg viewBox="0 0 100 100" width="100%"><path d="M 50 10 L 75 40 Q 75 65 50 65 Q 25 65 25 40 Z" fill="#FF7043" stroke="#D84315" stroke-width="3"/><path d="M 35 65 L 30 92 M 42 65 L 42 95 M 50 65 L 50 95 M 58 65 L 58 95 M 65 65 L 70 92" stroke="#D84315" stroke-width="3" stroke-linecap="round"/><circle cx="40" cy="45" r="5" fill="#FFF"/><circle cx="40" cy="45" r="2.5" fill="#000"/><circle cx="60" cy="45" r="5" fill="#FFF"/><circle cx="60" cy="45" r="2.5" fill="#000"/></svg>`,
+            cuttlefish: `<svg viewBox="0 0 100 100" width="100%"><ellipse cx="50" cy="40" rx="30" ry="25" fill="#AB47BC" stroke="#4A148C" stroke-width="3"/><path d="M 35 62 L 32 90 M 42 64 L 42 92 M 50 65 L 50 92 M 58 64 L 58 92 M 65 62 L 68 90" stroke="#4A148C" stroke-width="3" stroke-linecap="round"/><circle cx="38" cy="38" r="4" fill="#FFF"/><circle cx="38" cy="38" r="2" fill="#000"/><circle cx="62" cy="38" r="4" fill="#FFF"/><circle cx="62" cy="38" r="2" fill="#000"/></svg>`,
+            octopus: `<svg viewBox="0 0 100 100" width="100%"><circle cx="50" cy="38" r="28" fill="#FF5252" stroke="#B71C1C" stroke-width="3"/><path d="M 28 58 Q 15 75 25 90 M 36 62 Q 30 80 40 92 M 50 66 Q 50 82 52 93 M 64 62 Q 70 80 60 92 M 72 58 Q 85 75 75 90" stroke="#B71C1C" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="40" cy="35" r="4" fill="#FFF"/><circle cx="40" cy="35" r="2" fill="#000"/><circle cx="60" cy="35" r="4" fill="#FFF"/><circle cx="60" cy="35" r="2" fill="#000"/><ellipse cx="50" cy="44" rx="4" ry="2" fill="#B71C1C"/></svg>`,
+
+            oyster: `<svg viewBox="0 0 100 100" width="100%"><path d="M 20 60 Q 15 25 50 20 Q 85 25 80 65 Q 50 90 20 60 Z" fill="#78909C" stroke="#37474F" stroke-width="3"/><path d="M 30 50 Q 28 35 50 30 Q 72 35 70 55 Q 50 75 30 50 Z" fill="#CFD8DC"/><path d="M 40 45 Q 50 38 60 48" fill="none" stroke="#546E7A" stroke-width="3"/></svg>`,
+            clam: `<svg viewBox="0 0 100 100" width="100%"><path d="M 15 55 Q 50 20 85 55 Q 50 80 15 55 Z" fill="#8D6E63" stroke="#3E2723" stroke-width="3"/><path d="M 25 53 Q 50 28 75 53" fill="none" stroke="#5D4037" stroke-width="3"/><path d="M 35 55 Q 50 38 65 55" fill="none" stroke="#5D4037" stroke-width="2"/></svg>`,
+            scallop: `<svg viewBox="0 0 100 100" width="100%"><path d="M 20 35 L 80 35 L 90 70 Q 50 95 10 70 Z" fill="#FF7043" stroke="#BF360C" stroke-width="3"/><line x1="50" y1="35" x2="50" y2="88" stroke="#BF360C" stroke-width="2"/><line x1="50" y1="35" x2="30" y2="80" stroke="#BF360C" stroke-width="2"/><line x1="50" y1="35" x2="70" y2="80" stroke="#BF360C" stroke-width="2"/></svg>`
+        };
+
+        const quizData = [
+            {
+                foodSvg: svgIcons.friedFish,
+                question: "【海產店炸魚排】美味的「炸魚排」，很多是用「鬼頭刀」做的。哪一隻才是鬼頭刀？",
+                hint: "提示：鬼頭刀有著「非常高挺的額頭」，像一把大刀一樣，身上帶有黃綠色光澤。",
+                options: [
+                    { text: "流線型圓滾身軀", svg: svgIcons.tuna },
+                    { text: "(額頭高高、像一把大刀)", svg: svgIcons.mahiMahi },
+                    { text: "橙紅色肌肉紋理身軀", svg: svgIcons.salmon }
+                ],
+                correct: 1,
+                explanation: "答對了！鬼頭刀的額頭很高很特別。牠們游得很快，是台灣東海岸非常重要的魚類喔！"
+            },
+            {
+                foodSvg: svgIcons.panFriedFish,
+                question: "【便當煎白帶魚】便當裡常出現一塊塊煎得香香的魚。哪一隻是全身銀白色的「白帶魚」？",
+                hint: "提示：白帶魚沒有魚鱗，身體長長扁扁的，就像一把亮晶晶的銀色長劍。",
+                options: [
+                    { text: "長條細長如蛇", svg: svgIcons.eel },
+                    { text: "小巧流線型身軀", svg: svgIcons.saury },
+                    { text: "扁平長條、銀白如劍", svg: svgIcons.cutlassfish }
+                ],
+                correct: 2,
+                explanation: "沒錯！白帶魚在大海裡就像一把銀色長劍，甚至會直立著游泳呢！"
+            },
+            {
+                foodSvg: svgIcons.grilledMackerel,
+                question: "【日式烤鯖魚】鹽烤鯖魚相當營養美味。活著的鯖魚，背上有什麼特別的花紋呢？",
+                hint: "提示：鯖魚的背部有像波浪一樣的「青色蟲紋」，是牠在大海裡的偽裝保護色喔！",
+                options: [
+                    { text: "背部波浪青色花紋", svg: svgIcons.mackerel },
+                    { text: "身體帶有暗色橫條紋", svg: svgIcons.tilapia },
+                    { text: "銀白色光滑鱗片", svg: svgIcons.milkFish }
+                ],
+                correct: 0,
+                explanation: "太棒了！鯖魚背上的波浪花紋可以躲避天空中的鳥類抓捕，是非常神奇的保護色！"
+            },
+            {
+                foodSvg: svgIcons.grilledSquid,
+                question: "【夜市烤小卷】夜市裡香噴噴的「烤小卷（透抽）」，在海裡活著時長怎樣？",
+                hint: "提示：小卷的身材呈現長筒狀，尾端尖尖的，頭頂就像戴了一頂尖尖的帽子。",
+                options: [
+                    { text: "寬扁圓身、具墨魚骨", svg: svgIcons.cuttlefish },
+                    { text: "圓圓大頭、八條觸手", svg: svgIcons.octopus },
+                    { text: "長筒狀、尾端尖帽型", svg: svgIcons.squid }
+                ],
+                correct: 2,
+                explanation: "答對了！小卷的身體長長尖尖的，夜市賣的烤小卷切成一圈一圈，就是牠長長的身體喔！"
+            },
+            {
+                foodSvg: svgIcons.oysterOmelet,
+                question: "【夜市蚵仔煎】蚵仔煎裡面軟軟的「蚵仔」，原本是住在什麼樣的殼裡面？",
+                hint: "提示：蚵仔的殼並不平滑，而是粗糙、不規則形狀的灰黑色硬殼，黏在石頭上。",
+                options: [
+                    { text: "光滑雙殼、具放射紋", svg: svgIcons.clam },
+                    { text: "粗糙不規則灰黑硬殼", svg: svgIcons.oyster },
+                    { text: "扇形溝槽外殼", svg: svgIcons.scallop }
+                ],
+                correct: 1,
+                explanation: "非常厲害！蚵仔（牡蠣）原本住在硬硬粗糙的殼裡，要靠人工辛苦剝開殼才能吃到裡面的鮮美肉質喔！"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const foodSvgContainer = document.getElementById('food-svg');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackBox = document.getElementById('feedback-box');
+        const hintText = document.getElementById('hint-text');
+
+        function startQuiz() {
+            startScreen.classList.add('hide');
+            quizScreen.classList.remove('hide');
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            feedbackBox.style.display = 'none';
+            hintText.style.display = 'none';
+            optionsContainer.innerHTML = '';
+
+            const data = quizData[currentQuestion];
+            document.getElementById('question-progress').innerText = `第 ${currentQuestion + 1} / ${quizData.length} 題`;
+            document.getElementById('question-text').innerText = data.question;
+            foodSvgContainer.innerHTML = data.foodSvg;
+            hintText.innerText = data.hint;
+
+            data.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<div class="option-svg-box">${opt.svg}</div> <span>${opt.text}</span>`;
+                btn.onclick = () => selectOption(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function toggleHint() {
+            if (hintText.style.display === 'block') {
+                hintText.style.display = 'none';
+            } else {
+                hintText.style.display = 'block';
+                readText(quizData[currentQuestion].hint);
+            }
+        }
+
+        function selectOption(selectedIndex) {
+            const data = quizData[currentQuestion];
+            const buttons = optionsContainer.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (selectedIndex === data.correct) {
+                score += 20;
+                buttons[selectedIndex].classList.add('correct');
+                feedbackBox.className = 'feedback-box correct-bg';
+                document.getElementById('feedback-title').innerText = "⭕ 答對了！你的觀察力太棒了！";
+                readText("答對了！" + data.explanation);
+            } else {
+                buttons[selectedIndex].classList.add('wrong');
+                buttons[data.correct].classList.add('correct');
+                feedbackBox.className = 'feedback-box wrong-bg';
+                document.getElementById('feedback-title').innerText = "❌ 沒關係，我們一起學到新知識了！";
+                readText("沒關係！" + data.explanation);
+            }
+            document.getElementById('feedback-detail').innerText = data.explanation;
+            feedbackBox.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            window.speechSynthesis.cancel();
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizScreen.classList.add('hide');
+            resultScreen.classList.remove('hide');
+            document.getElementById('score-text').innerText = `${score} 分`;
+            
+            const msgEl = document.getElementById('result-msg');
+            if (score >= 80) {
+                msgEl.innerHTML = "太厲害了！你是<b>【海洋知識小達人】</b>！🏆<br>你能夠精準辨識海洋生物特徵，下次吃魚的時候記得感謝大海的賜予喔！";
+                readText("太厲害了！你是海洋知識小達人！下次吃魚的時候記得感謝大海喔！");
+            } else {
+                msgEl.innerHTML = "太棒了！你是<b>【海洋探索小偵探】</b>！🌊<br>認識了鬼頭刀、白帶魚和鯖魚的長相，下次逛夜市或菜市場時可以觀察看看喔！";
+                readText("太棒了！你是海洋探索小偵探！下次去菜市場可以觀察看看喔！");
+            }
+        }
+
+        function readText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-TW';
+                utterance.rate = 0.9; 
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function readCurrentQuestion() {
+            const data = quizData[currentQuestion];
+            let fullText = data.question + " 選項一：" + data.options[0].text + "。選項二：" + data.options[1].text + "。選項三：" + data.options[2].text;
+            readText(fullText);
+        }
+    </script>
+</body>
+</html>

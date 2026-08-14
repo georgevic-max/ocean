@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海洋守護者：特教高職生專用易讀版測驗</title>
+    <style>
+        :root {
+            --primary-color: #0288d1;
+            --primary-dark: #01579b;
+            --bg-color: #e1f5fe;
+            --card-bg: #ffffff;
+            --text-color: #212121;
+            --green-light: #e8f5e9;
+            --green-border: #4caf50;
+            --red-light: #ffebee;
+            --red-border: #f44336;
+            --yellow-light: #fffde7;
+            --yellow-border: #fbc02d;
+            --accent-orange: #ff9800;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Microsoft JhengHei", "微軟正黑體", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#b3e5fc 15%, transparent 16%);
+            background-size: 30px 30px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            color: var(--text-color);
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 680px;
+            border-radius: 24px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+            padding: 25px;
+            border: 4px solid #b3e5fc;
+            position: relative;
+        }
+
+        /* 頂部控制列 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 16px;
+        }
+
+        .progress-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .tts-btn {
+            background-color: #fff0f5;
+            border: 2px solid #ff69b4;
+            color: #d81b60;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.1s;
+        }
+
+        .tts-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 題目區域 */
+        .question-card {
+            background-color: #f9f9f9;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 8px solid var(--primary-color);
+        }
+
+        .question-title {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            font-weight: bold;
+            color: #1a237e;
+            margin-bottom: 10px;
+        }
+
+        .question-hint-btn {
+            background: #fff3e0;
+            border: 1px solid var(--accent-orange);
+            color: #e65100;
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .hint-text {
+            background-color: #fffde7;
+            border: 2px dashed #fbc02d;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 1.05rem;
+            color: #5d4037;
+            display: none;
+        }
+
+        /* 選項按鈕 */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: #ffffff;
+            border: 3px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #e1f5fe;
+        }
+
+        .option-btn.correct {
+            background-color: var(--green-light) !important;
+            border-color: var(--green-border) !important;
+            color: #1b5e20 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--red-light) !important;
+            border-color: var(--red-border) !important;
+            color: #b71c1c !important;
+        }
+
+        /* 回饋說明卡 */
+        .feedback-box {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            line-height: 1.6;
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .feedback-box.correct-bg {
+            background-color: var(--green-light);
+            border: 2px solid var(--green-border);
+            color: #1b5e20;
+        }
+
+        .feedback-box.wrong-bg {
+            background-color: var(--red-light);
+            border: 2px solid var(--red-border);
+            color: #b71c1c;
+        }
+
+        .btn-next {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 14px 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 15px auto 0;
+            box-shadow: 0 4px 10px rgba(2, 136, 209, 0.4);
+        }
+
+        .btn-next:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        /* 首頁與結果頁 */
+        .start-card, .result-card {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .main-title {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+        }
+
+        .desc-text {
+            font-size: 1.15rem;
+            color: #424242;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .traffic-light-demo {
+            display: flex;
+            justify-content: space-around;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 2px solid #eee;
+        }
+
+        .light-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .badge-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: white;
+            margin-bottom: 6px;
+        }
+
+        .bg-green { background-color: #4caf50; }
+        .bg-yellow { background-color: #fbc02d; }
+        .bg-red { background-color: #f44336; }
+
+        .big-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 35px;
+            padding: 16px 40px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .big-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 評分與鼓勵 */
+        .score-badge {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin: 15px 0;
+        }
+
+        .reward-icon {
+            font-size: 4.5rem;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- 1. 開始畫面 -->
+        <div id="start-screen" class="start-card">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🐟 🌊 🦪</div>
+            <h1 class="main-title">海洋守護者：外食挑魚好聰明</h1>
+            <p class="desc-text">
+                同學好！你去夜市、超商或自助餐買飯時，知道怎麼挑選對大海最友善的海鮮嗎？<br>
+                一起來挑戰這個小測驗吧！
+            </p>
+
+            <div class="traffic-light-demo">
+                <div class="light-item">
+                    <div class="badge-circle bg-green">🟢</div>
+                    <span>綠燈：安心吃</span>
+                    <span style="color: #666; font-size: 0.8rem; font-weight: normal;">數量多、在地養殖</span>
+                </div>
+                <div class="light-item">
+                    <div class="badge-circle bg-yellow">🟡</div>
+                    <span>黃燈：想一下</span>
+                    <span style="color: #666; font-size: 0.8rem; font-weight: normal;">數量慢慢變少</span>
+                </div>
+                <div class="light-item">
+                    <div class="badge-circle bg-red">🔴</div>
+                    <span>紅燈：盡量少吃</span>
+                    <span style="color: #666; font-size: 0.8rem; font-weight: normal;">瀕危或小魚苗</span>
+                </div>
+            </div>
+
+            <button class="big-btn" onclick="startQuiz()">開始測驗 ▶</button>
+        </div>
+
+        <!-- 2. 測驗進行畫面 -->
+        <div id="quiz-screen" class="hide">
+            <div class="top-bar">
+                <span id="question-progress" class="progress-text">第 1 / 5 題</span>
+                <button class="tts-btn" onclick="readCurrentQuestion()">
+                    🔊 唸題目給我聽
+                </button>
+            </div>
+
+            <div class="question-card">
+                <div id="question-text" class="question-title"></div>
+                <button class="question-hint-btn" onclick="toggleHint()">💡 點我拿提示小幫手</button>
+                <div id="hint-text" class="hint-text"></div>
+            </div>
+
+            <div id="options-container" class="options-list"></div>
+
+            <div id="feedback-box" class="feedback-box">
+                <div id="feedback-title" style="font-weight: bold; font-size: 1.3rem; margin-bottom: 6px;"></div>
+                <div id="feedback-detail"></div>
+                <button id="next-btn" class="btn-next" onclick="nextQuestion()">下一題 ➔</button>
+            </div>
+        </div>
+
+        <!-- 3. 結果結算畫面 -->
+        <div id="result-screen" class="result-card hide">
+            <div id="result-emoji" class="reward-icon">🏆</div>
+            <h2 style="color: var(--primary-dark); font-size: 1.8rem;">測驗完成！</h2>
+            <div id="score-text" class="score-badge">100 分</div>
+            <p id="result-msg" class="desc-text"></p>
+
+            <button class="big-btn" onclick="location.reload()">再挑戰一次 🔄</button>
+        </div>
+
+    </div>
+
+    <script>
+        // 適合特教高職生的題目庫（生活化、易讀語法、生活情境）
+        const quizData = [
+            {
+                question: "【夜市點餐】去瑞豐夜市點「蚵仔煎」跟「蛤蜊湯」，蚵仔和蛤蜊在海鮮燈號裡屬於哪一種？",
+                hint: "提示：蚵仔跟蛤蜊在台灣養很多，對大海負擔小，是可以安心吃的喔！",
+                options: [
+                    { text: "🟢 綠燈（安心吃，對海洋很友善）", icon: "🟢" },
+                    { text: "🟡 黃燈（想一下再吃）", icon: "🟡" },
+                    { text: "🔴 紅燈（少吃，快要沒有了）", icon: "🔴" }
+                ],
+                correct: 0,
+                explanation: "答對了！蚵仔（牡蠣）和蛤蜊主要是在地養殖，數量多且能淨化水質，是最佳的「綠燈永續海鮮」！"
+            },
+            {
+                question: "【保護小魚】為什麼我們去海產店時，應該「少點吻仔魚」？",
+                hint: "提示：吻仔魚是各種魚類的小寶寶，如果小寶寶都被抓光，長大就沒有大魚了！",
+                options: [
+                    { text: "因為吻仔魚是魚類小寶寶，抓光了以後就沒有大魚可以長大。", icon: "🐟" },
+                    { text: "因為吻仔魚長得太漂亮了，應該養在水族館裡。", icon: "🐠" },
+                    { text: "因為吻仔魚太重了，廚師煮不起來。", icon: "🍲" }
+                ],
+                correct: 0,
+                explanation: "非常好！吻仔魚包含了許多不同魚類的幼苗，大量捕撈會讓大海裡的魚群無法順利繁衍下一代。"
+            },
+            {
+                question: "【自助餐挑魚】中午去學校餐廳或自助餐包便當，選哪一種魚對海洋最友善？",
+                hint: "提示：挑選在地、常見、數量多的小型魚（像是台灣鯛或秋刀魚）最划算又永續！",
+                options: [
+                    { text: "昂貴又稀少的深海大魚（如黑鮪魚）", icon: "🦈" },
+                    { text: "在地好養殖或數量多的魚（如台灣鯛、秋刀魚）", icon: "🐟" },
+                    { text: "瀕臨絕種的珍貴魚類", icon: "🐋" }
+                ],
+                correct: 1,
+                explanation: "太棒了！臺灣鯛（吳郭魚）和秋刀魚數量充裕、成長快速，屬於「綠燈海鮮」，好吃又保護地球！"
+            },
+            {
+                question: "【超商購物】在超商或賣場買鮪魚罐頭時，如果看到包裝上面有「藍色小魚標章（MSC認證）」，代表什麼？",
+                hint: "提示：有認證標章，代表這罐魚是用「愛護海洋的方式」抓到的喔！",
+                options: [
+                    { text: "這罐魚是假的魚肉製造的。", icon: "❌" },
+                    { text: "這罐魚是用友善海洋、不破壞環境的方式抓到的。", icon: "✅" },
+                    { text: "這罐魚只能給小貓咪吃。", icon: "🐱" }
+                ],
+                correct: 1,
+                explanation: "非常厲害！藍色標章（MSC）是國際永續漁業認證，代表捕撈過程尊重海洋生態，沒有濫捕！"
+            },
+            {
+                question: "【做個守護者】去海鮮餐廳用餐時，看到菜單上有「紅燈海鮮（如鯊魚烟、魚翅）」，我們應該怎麼做？",
+                hint: "提示：紅燈代表魚群數量越來越少，我們應該主動換點別的綠燈海鮮！",
+                options: [
+                    { text: "一口氣點十盤全部吃光光。", icon: "🍽️" },
+                    { text: "盡量不要點，改點綠燈的虱目魚或蛤蜊。", icon: "👍" },
+                    { text: "跟老闆大吵大鬧。", icon: "🤬" }
+                ],
+                correct: 1,
+                explanation: "太讚了！拒點「紅燈海鮮」，改選「綠燈海鮮」，就是高職生在生活中守護大海最棒的方式！"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        // DOM 元素
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionProgress = document.getElementById('question-progress');
+        const questionText = document.getElementById('question-text');
+        const hintText = document.getElementById('hint-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackBox = document.getElementById('feedback-box');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackDetail = document.getElementById('feedback-detail');
+
+        function startQuiz() {
+            startScreen.classList.add('hide');
+            quizScreen.classList.remove('hide');
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // 重置
+            feedbackBox.style.display = 'none';
+            hintText.style.display = 'none';
+            optionsContainer.innerHTML = '';
+
+            const data = quizData[currentQuestion];
+            questionProgress.innerText = `第 ${currentQuestion + 1} / ${quizData.length} 題`;
+            questionText.innerText = data.question;
+            hintText.innerText = data.hint;
+
+            // 產生選項
+            data.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span style="font-size:1.5rem">${opt.icon}</span> <span>${opt.text}</span>`;
+                btn.onclick = () => selectOption(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function toggleHint() {
+            if (hintText.style.display === 'block') {
+                hintText.style.display = 'none';
+            } else {
+                hintText.style.display = 'block';
+                readText("提示：" + quizData[currentQuestion].hint);
+            }
+        }
+
+        function selectOption(selectedIndex) {
+            const data = quizData[currentQuestion];
+            const buttons = optionsContainer.querySelectorAll('.option-btn');
+            
+            // 停用所有選項
+            buttons.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (selectedIndex === data.correct) {
+                score += 20;
+                buttons[selectedIndex].classList.add('correct');
+                feedbackBox.className = 'feedback-box correct-bg';
+                feedbackTitle.innerText = "🎉 答對了！太棒了！";
+                readText("答對了！" + data.explanation);
+            } else {
+                buttons[selectedIndex].classList.add('wrong');
+                buttons[data.correct].classList.add('correct');
+                feedbackBox.className = 'feedback-box wrong-bg';
+                feedbackTitle.innerText = "💪 沒關係，我們一起學習！";
+                readText("沒關係！" + data.explanation);
+            }
+
+            feedbackDetail.innerText = data.explanation;
+            feedbackBox.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            window.speechSynthesis.cancel(); // 停止朗讀
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizScreen.classList.add('hide');
+            resultScreen.classList.remove('hide');
+
+            document.getElementById('score-text').innerText = `${score} 分`;
+            const msgEl = document.getElementById('result-msg');
+            const emojiEl = document.getElementById('result-emoji');
+
+            if (score >= 80) {
+                emojiEl.innerText = "🐋 🌟";
+                msgEl.innerHTML = "恭喜你獲得<b>【海洋守護大師】</b>勳章！<br>你已經完全學會如何在生活中聰明挑選永續海鮮了！把這個好習慣告訴家人朋友吧！";
+                readText("恭喜你獲得海洋守護大師勳章！你非常棒！");
+            } else {
+                emojiEl.innerText = "🐬 👍";
+                msgEl.innerHTML = "恭喜你獲得<b>【海洋小尖兵】</b>勳章！<br>你已經踏出保護海洋的第一步，記住「綠燈安心吃、紅燈盡量少吃」的口訣喔！";
+                readText("恭喜你獲得海洋小尖兵勳章！你做得很好！");
+            }
+        }
+
+        // Web Speech API 語音朗讀功能
+        function readText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // 先停止先前的語音
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-TW';
+                utterance.rate = 0.9; // 稍微放慢語速，方便理解
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function readCurrentQuestion() {
+            const data = quizData[currentQuestion];
+            let fullText = data.question + "。選項一：" + data.options[0].text + "。選項二：" + data.options[1].text + "。選項三：" + data.options[2].text;
+            readText(fullText);
+        }
+    </script>
+</body>
+</html>

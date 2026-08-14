@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旗津防颱與 GoOcean 水域安全大挑戰</title>
+    <style>
+        :root {
+            --primary-blue: #0288d1;
+            --dark-blue: #01579b;
+            --danger-red: #ef5350;
+            --safe-green: #4caf50;
+            --warning-yellow: #fbc02d;
+            --bg-color: #e0f7fa;
+            --card-bg: #ffffff;
+            --text-color: #37474f;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#b2ebf2 20%, transparent 20%);
+            background-size: 24px 24px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            color: var(--text-color);
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 680px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            border: 4px solid var(--primary-blue);
+            position: relative;
+        }
+
+        /* 頁首資訊 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #b2ebd5;
+            padding: 10px 18px;
+            border-radius: 16px;
+        }
+
+        .progress-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--dark-blue);
+        }
+
+        .badge-role {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        /* 題目區塊 */
+        .question-card {
+            background-color: #f1f8e9;
+            border-left: 6px solid var(--safe-green);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .question-title {
+            font-size: 1.25rem;
+            line-height: 1.5;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        /* 選項區塊 */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #ffffff;
+            border: 2px solid #cfd8dc;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-blue);
+            background-color: #e1f5fe;
+            transform: translateX(3px);
+        }
+
+        .option-btn.correct {
+            background-color: #e8f5e9 !important;
+            border-color: var(--safe-green) !important;
+            color: #1b5e20 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #ffebee !important;
+            border-color: var(--danger-red) !important;
+            color: #c62828 !important;
+        }
+
+        /* 回饋說明框 */
+        .feedback-box {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .feedback-box.correct-bg {
+            background-color: #e8f5e9;
+            border: 2px solid var(--safe-green);
+            color: #1b5e20;
+        }
+
+        .feedback-box.wrong-bg {
+            background-color: #ffebee;
+            border: 2px solid var(--danger-red);
+            color: #c62828;
+        }
+
+        .btn-next {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 15px 0 0 auto;
+            transition: background 0.2s;
+        }
+
+        .btn-next:hover { background-color: var(--dark-blue); }
+        .hide { display: none !important; }
+
+        /* 開始與結算頁面 */
+        .card-center { text-align: center; padding: 20px 10px; }
+        .main-title { font-size: 2rem; color: var(--dark-blue); margin-bottom: 15px; }
+        .desc-text { font-size: 1.1rem; line-height: 1.6; color: #546e7a; margin-bottom: 25px; }
+        
+        .big-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 14px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+            transition: transform 0.2s;
+        }
+        .big-btn:hover { transform: scale(1.05); }
+
+        .score-display { font-size: 3.5rem; font-weight: bold; color: var(--primary-blue); margin: 15px 0; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 開始畫面 -->
+        <div id="start-screen" class="card-center">
+            <h1 class="main-title">🌊 水域安全與 GoOcean 大挑戰</h1>
+            <p class="desc-text">
+                你是「具備自我決策能力的聰明旗津出遊者」嗎？<br>
+                面對颱風天的大浪、同儕的誘惑，以及突發的水域危機，<br>
+                你能做出最正確的安全選擇嗎？快來測試看看吧！
+            </p>
+            <button class="big-btn" onclick="startQuiz()">開始挑戰 🚀</button>
+        </div>
+
+        <!-- 測驗畫面 -->
+        <div id="quiz-screen" class="hide">
+            <div class="top-bar">
+                <span id="question-progress" class="progress-text">第 1 / 5 題</span>
+                <span class="badge-role">聰明出遊者</span>
+            </div>
+
+            <div class="question-card">
+                <div id="question-text" class="question-title"></div>
+            </div>
+
+            <div id="options-container" class="options-list"></div>
+
+            <div id="feedback-box" class="feedback-box">
+                <div id="feedback-title" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 6px;"></div>
+                <div id="feedback-detail"></div>
+                <button id="next-btn" class="btn-next" onclick="nextQuestion()">下一題 ➔</button>
+            </div>
+        </div>
+
+        <!-- 結算畫面 -->
+        <div id="result-screen" class="card-center hide">
+            <h2 style="color: var(--dark-blue); font-size: 2rem;">測驗完成！</h2>
+            <div id="score-text" class="score-display">100 分</div>
+            <p id="result-msg" class="desc-text"></p>
+            <button class="big-btn" onclick="location.reload()">重新挑戰 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "1. 颱風天放假時，當你打開 GoOcean 平台觀察旗津海水浴場的海象，畫面上亮起「大紅燈」時，代表什麼意思？",
+                options: [
+                    "A. 風浪很大非常刺激，是去踩浪觀浪的好時機",
+                    "B. 代表海象極度危險，暴風雨與巨浪威脅高，絕不可靠近水域",
+                    "C. 代表海水溫度太高，只要穿涼鞋就可以去玩水",
+                    "D. 代表該區域正在進行游泳比賽"
+                ],
+                correct: 1,
+                explanation: "亮紅燈代表該水域處於高風險危險狀態！颱風天的暴風與巨浪隨時會將人捲入大海，絕對不能靠近海岸。"
+            },
+            {
+                question: "2. 颱風假當天，朋友拉著你說：「走啦！旗津現在浪超大超刺激，我們一起去海邊看海抓魚好不好？」身為聰明的出遊者，你該怎麼做？",
+                options: [
+                    "A. 怕被朋友排擠，只好勉強陪他一起去海邊",
+                    "B. 只要站在岸邊遠遠看就好，不碰水應該沒關係",
+                    "C. 雙腳踩緊安全線內、雙手比交叉，大聲拒絕：「不可以！颱風天亮紅燈！危險我不去！」",
+                    "D. 跟著朋友一起去，順便拍照打卡上傳"
+                ],
+                correct: 2,
+                explanation: "面對同儕的危險誘惑，要發揮自我決策能力！保持身體在安全區域，並明確大聲表達拒絕立場。"
+            },
+            {
+                question: "3. 在海邊活動時，如果不幸看到有人落水在海裡掙扎，岸上救援的第一大鐵則是什麼？",
+                options: [
+                    "A. 展現英勇精神，立刻跳入海中救人",
+                    "B. 絕對不衝動跳水，死守安全藍線內，進行岸上安全救援",
+                    "C. 拿著長木棒衝進海裡試圖把人拉回來",
+                    "D. 假裝沒看到，趕快跑離現場"
+                ],
+                correct: 1,
+                explanation: "救人第一原則是「確保自身安全」！未受專業訓練絕不衝動跳水，必須死守安全岸上進行救援，避免造成更多人落水。"
+            },
+            {
+                question: "4. 水上自救與救援五字訣「叫、叫、伸、拋、划」，請問前兩個「叫」分別代表什麼意思？",
+                options: [
+                    "A. 大聲尖叫；對著落水者叫喊名字",
+                    "B. 大聲呼救吸引周圍的人注意；打電話報警求救 (118/119)",
+                    "C. 叫落水者自己游上岸；叫朋友幫忙拍照記錄",
+                    "D. 叫救護車；對著大海大聲叫"
+                ],
+                correct: 1,
+                explanation: "第一個「叫」是大聲大喊大叫向周圍大眾呼救；第二個「叫」是迅速撥打 118（海巡專線）或 119（消防求救）。"
+            },
+            {
+                question: "5. 執行救援五字訣中的「伸」與「拋」時，在岸上可以使用哪些物資來安全救援？",
+                options: [
+                    "A. 直接伸出自己的雙手或雙腳去拉落水者",
+                    "B. 伸出掃把/長桿；拋擲綁有繩索的空寶特瓶或救生圈",
+                    "C. 丟擲石頭讓落水者保持清醒",
+                    "D. 丟擲重重的背包讓落水者抓著"
+                ],
+                correct: 1,
+                explanation: "「伸」是利用掃把、樹枝、長桿等延伸物；「拋」是拋擲具有浮力的物品（如綁繩寶特瓶、救生圈）。絕不能用手腳直接拉人，以免被拉下水！"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackBox = document.getElementById('feedback-box');
+
+        function startQuiz() {
+            startScreen.classList.add('hide');
+            quizScreen.classList.remove('hide');
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            feedbackBox.style.display = 'none';
+            optionsContainer.innerHTML = '';
+
+            const data = quizData[currentQuestion];
+            document.getElementById('question-progress').innerText = `第 ${currentQuestion + 1} / ${quizData.length} 題`;
+            document.getElementById('question-text').innerText = data.question;
+
+            data.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = optText;
+                btn.onclick = () => selectOption(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIndex) {
+            const data = quizData[currentQuestion];
+            const buttons = optionsContainer.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (selectedIndex === data.correct) {
+                score += 20;
+                buttons[selectedIndex].classList.add('correct');
+                feedbackBox.className = 'feedback-box correct-bg';
+                document.getElementById('feedback-title').innerText = "⭕ 正確！觀念非常紮實！";
+            } else {
+                buttons[selectedIndex].classList.add('wrong');
+                buttons[data.correct].classList.add('correct');
+                feedbackBox.className = 'feedback-box wrong-bg';
+                document.getElementById('feedback-title').innerText = "❌ 答錯囉！安全觀念要注意：";
+            }
+            
+            document.getElementById('feedback-detail').innerText = data.explanation;
+            feedbackBox.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizScreen.classList.add('hide');
+            resultScreen.classList.remove('hide');
+            document.getElementById('score-text').innerText = `${score} 分`;
+            
+            const msgEl = document.getElementById('result-msg');
+            if (score === 100) {
+                msgEl.innerHTML = "太棒了！你是<b>【聰明海域防護大師】</b>！🏆<br>你不僅懂查看 GoOcean Risk 燈號，還能堅定抗拒同儕誘惑、熟記岸上救援五字訣！";
+            } else if (score >= 60) {
+                msgEl.innerHTML = "表現不錯！你是<b>【水域安全守護者】</b>！🛡️<br>你已經具備基本自我保護意識，記得颱風天亮紅燈絕對不靠近海邊喔！";
+            } else {
+                msgEl.innerHTML = "再加油！你是<b>【海域探索學習者】</b>！🌊<br>記得：颱風天不看海、不跳水救援，隨時善用 GoOcean 查詢風險燈號！";
+            }
+        }
+    </script>
+</body>
+</html>

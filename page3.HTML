@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoOcean 海洋安全網頁體驗教室</title>
+    <style>
+        :root {
+            --bg-blue: #e0f2fe;
+            --main-blue: #0284c7;
+            --dark-blue: #075985;
+            --safe-green: #16a34a;
+            --warn-yellow: #ca8a04;
+            --danger-red: #dc2626;
+            --card-white: #ffffff;
+            --text-main: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-blue);
+            color: var(--text-main);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background-color: var(--card-white);
+            border-radius: 20px;
+            border: 4px solid var(--main-blue);
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* 標頭與分頁導覽 */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 3px dashed var(--bg-blue);
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            color: var(--dark-blue);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 130px;
+            padding: 12px 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--main-blue);
+            color: white;
+            border-color: var(--dark-blue);
+        }
+
+        /* 單元內容區 */
+        .section-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--dark-blue);
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 燈號展示 */
+        .light-box {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .light-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .bg-green { background-color: var(--safe-green); }
+        .bg-yellow { background-color: var(--warn-yellow); }
+        .bg-red { background-color: var(--danger-red); }
+
+        /* 模擬器樣式 */
+        .sim-screen {
+            background: #1e293b;
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            border: 3px solid #0f172a;
+        }
+
+        .sim-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid var(--main-blue);
+        }
+
+        .sim-result-flag {
+            font-size: 2.2rem;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin: 15px 0;
+            display: none;
+        }
+
+        /* 選項按鈕 */
+        .choice-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 12px;
+            border: 2px solid #cbd5e1;
+            background-color: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+        .choice-btn:hover {
+            background-color: #e0f2fe;
+            border-color: var(--main-blue);
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback-ok { background-color: #dcfce7; color: #15803d; border: 2px solid var(--safe-green); }
+        .feedback-err { background-color: #fee2e2; color: #b91c1c; border: 2px solid var(--danger-red); }
+
+        .big-link-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background-color: var(--main-blue);
+            color: white;
+            text-decoration: none;
+            padding: 16px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 15px;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 頁首 -->
+        <div class="header">
+            <h1>🌊 GoOcean 海洋安全學習教室</h1>
+            <p style="font-size: 1.1rem; color: #475569;">學會看網頁，安心去看海！</p>
+        </div>
+
+        <!-- 導覽分頁 -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab(1)">1. 認識網頁 🌐</button>
+            <button class="tab-btn" onclick="switchTab(2)">2. 看懂紅綠燈 🚦</button>
+            <button class="tab-btn" onclick="switchTab(3)">3. 模擬看海 🔍</button>
+            <button class="tab-btn" onclick="switchTab(4)">4. 實戰練習 📝</button>
+        </div>
+
+        <!-- 單元 1：認識 GoOcean 網頁 -->
+        <div id="tab1" class="section-content active">
+            <div class="card">
+                <div class="card-title">💡 什麼是 GoOcean 平台？</div>
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    GoOcean 是政府專門為了<b>海邊安全</b>設計的網站。<br><br>
+                    出門看海玩水前，只要打開這個網站，就可以知道當天的<b>海浪大不大</b>、<b>漂流危不危險</b>！
+                </p>
+            </div>
+            <div class="card">
+                <div class="card-title">🔍 去海邊前，只要簡單三步驟：</div>
+                <p style="font-size: 1.2rem; line-height: 1.8;">
+                    <b>第 1 步：</b> 打開 GoOcean 網站 📱<br>
+                    <b>第 2 步：</b> 搜尋想去的海邊（如：旗津）🏖️<br>
+                    <b>第 3 步：</b> 觀察風險燈號顏色 🚦
+                </p>
+            </div>
+        </div>
+
+        <!-- 單元 2：看懂紅綠燈 -->
+        <div id="tab2" class="section-content">
+            <div class="card">
+                <div class="card-title">🚦 GoOcean 燈號跟紅綠燈一樣！</div>
+                <p style="font-size: 1.1rem; margin-bottom: 10px;">點擊下方燈號看意思：</p>
+                <div class="light-box">
+                    <div class="light-item bg-green">
+                        <span style="font-size: 2rem;">🟢</span>
+                        <div>
+                            <div>綠燈：適合活動 (低風險)</div>
+                            <div style="font-size: 0.95rem; font-weight: normal;">海象平靜，可以安心去玩！</div>
+                        </div>
+                    </div>
+                    <div class="light-item bg-yellow">
+                        <span style="font-size: 2rem;">🟡</span>
+                        <div>
+                            <div>黃燈：注意安全 (中風險)</div>
+                            <div style="font-size: 0.95rem; font-weight: normal;">風浪變大，要非常小心！</div>
+                        </div>
+                    </div>
+                    <div class="light-item bg-red">
+                        <span style="font-size: 2rem;">🔴</span>
+                        <div>
+                            <div>紅燈：極度危險 (高風險)</div>
+                            <div style="font-size: 0.95rem; font-weight: normal;">大浪危險，絕對不能靠近！</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 單元 3：模擬看海 (模擬操作) -->
+        <div id="tab3" class="section-content">
+            <div class="card">
+                <div class="card-title">🎮 GoOcean 模擬選單</div>
+                <p style="font-size: 1.1rem; margin-bottom: 10px;">請選擇一個你想去的海邊地點：</p>
+                
+                <select id="sim-beach" class="sim-select" onchange="runSimulation()">
+                    <option value="">-- 請選擇海邊地點 --</option>
+                    <option value="cijin">高雄旗津海水浴場 (颱風天前夕)</option>
+                    <option value="kenting">屏東墾丁南灣 (晴天微風)</option>
+                    <option value="yuguang">台南漁光島 (風浪稍大)</option>
+                </select>
+
+                <div class="sim-screen">
+                    <p style="font-size: 1.1rem; color: #94a3b8;">模擬 GoOcean 螢幕畫面</p>
+                    <div id="sim-result" class="sim-result-flag"></div>
+                    <p id="sim-desc" style="font-size: 1.2rem; min-height: 30px;"></p>
+                </div>
+
+                <div id="sim-action" style="display: none;">
+                    <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">看完這個燈號，請問今天能去玩水嗎？</p>
+                    <button class="choice-btn" onclick="checkSimDecision('yes')">👍 可以安心去玩水</button>
+                    <button class="choice-btn" onclick="checkSimDecision('no')">🙅‍♂️ 危險！絕對不能去！</button>
+                    <div id="sim-fb" class="feedback"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 單元 4：實戰練習與連結 -->
+        <div id="tab4" class="section-content">
+            <div class="card">
+                <div class="card-title">📝 隨堂安全情境考驗</div>
+                <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">
+                    情境題：颱風假當天，朋友約你去旗津看浪。你打開 GoOcean 網站發現亮起了「🔴大紅燈」，你該怎麼做？
+                </p>
+                
+                <button class="choice-btn" onclick="checkQuiz(1)">A. 沒關係，跟朋友站在岸邊看一眼就好</button>
+                <button class="choice-btn" onclick="checkQuiz(2)">B. 聽朋友的話，一起去抓魚搶救漁獲</button>
+                <button class="choice-btn" onclick="checkQuiz(3)">C. 大聲拒絕：「不可以！亮紅燈太危險，我不去！」</button>
+
+                <div id="quiz-fb" class="feedback"></div>
+            </div>
+
+            <div class="card" style="background-color: #e0f2fe; border-color: var(--main-blue);">
+                <div class="card-title">🌐 準備好了嗎？體驗真正的 GoOcean 官網！</div>
+                <p style="font-size: 1.1rem; line-height: 1.6;">
+                    點擊下方按鈕，帶領學生開啟正式的官方網站，練習查詢「旗津」或「在地海域」的今日燈號：
+                </p>
+                <a href="https://goocean.namr.gov.tw/Home" target="_blank" class="big-link-btn">前往 GoOcean 官方網站 ➔</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 分頁切換
+        function switchTab(tabIndex) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.section-content');
+
+            tabs.forEach((tab, index) => {
+                if (index === tabIndex - 1) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            contents.forEach((content, index) => {
+                if (index === tabIndex - 1) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        // 模擬器邏輯
+        let currentSimColor = '';
+
+        function runSimulation() {
+            const val = document.getElementById('sim-beach').value;
+            const resBox = document.getElementById('sim-result');
+            const descBox = document.getElementById('sim-desc');
+            const actionBox = document.getElementById('sim-action');
+            const fbBox = document.getElementById('sim-fb');
+
+            fbBox.style.display = 'none';
+
+            if (!val) {
+                resBox.style.display = 'none';
+                descBox.innerText = '';
+                actionBox.style.display = 'none';
+                return;
+            }
+
+            resBox.style.display = 'block';
+            actionBox.style.display = 'block';
+
+            if (val === 'cijin') {
+                currentSimColor = 'red';
+                resBox.className = 'sim-result-flag bg-red';
+                resBox.innerText = '🔴 亮大紅燈';
+                descBox.innerText = '颱風逼近！巨浪與暴風非常劇烈，海象極度危險。';
+            } else if (val === 'kenting') {
+                currentSimColor = 'green';
+                resBox.className = 'sim-result-flag bg-green';
+                resBox.innerText = '🟢 亮綠燈';
+                descBox.innerText = '風平浪靜，天氣非常好，適合海陸活動。';
+            } else if (val === 'yuguang') {
+                currentSimColor = 'yellow';
+                resBox.className = 'sim-result-flag bg-yellow';
+                resBox.innerText = '🟡 亮黃燈';
+                descBox.innerText = '風浪稍大，長浪隱患高，需要特別注意安全。';
+            }
+        }
+
+        function checkSimDecision(choice) {
+            const fbBox = document.getElementById('sim-fb');
+            fbBox.style.display = 'block';
+
+            if (currentSimColor === 'red') {
+                if (choice === 'no') {
+                    fbBox.className = 'feedback feedback-ok';
+                    fbBox.innerText = '⭕ 完全正確！亮紅燈絕對不能去海邊！做得很棒！';
+                } else {
+                    fbBox.className = 'feedback feedback-err';
+                    fbBox.innerText = '❌ 不對喔！亮紅燈代表巨浪很危險，絕對不能去！';
+                }
+            } else if (currentSimColor === 'green') {
+                if (choice === 'yes') {
+                    fbBox.className = 'feedback feedback-ok';
+                    fbBox.innerText = '⭕ 正確！綠燈代表海象安全，可以安心出遊！';
+                } else {
+                    fbBox.className = 'feedback feedback-err';
+                    fbBox.innerText = '❌ 綠燈代表海象平靜安全，是可以安心玩的喔！';
+                }
+            } else if (currentSimColor === 'yellow') {
+                if (choice === 'no') {
+                    fbBox.className = 'feedback feedback-ok';
+                    fbBox.innerText = '⭕ 很好！黃燈有風險，選擇不去或在岸上遠觀是最安全的決定！';
+                } else {
+                    fbBox.className = 'feedback feedback-err';
+                    fbBox.innerText = '⚠️ 注意！黃燈代表有風險，必須非常小心，盡量避免下水。';
+                }
+            }
+        }
+
+        // 測驗邏輯
+        function checkQuiz(option) {
+            const fbBox = document.getElementById('quiz-fb');
+            fbBox.style.display = 'block';
+
+            if (option === 3) {
+                fbBox.className = 'feedback feedback-ok';
+                fbBox.innerText = '⭕ 太讚了！堅定拒絕同儕誘惑，保護自己的安全最聰明！';
+            } else {
+                fbBox.className = 'feedback feedback-err';
+                fbBox.innerText = '❌ 這樣很危險喔！颱風天亮紅燈時，不管岸邊還是抓魚都絕對不能去！';
+            }
+        }
+    </script>
+</body>
+</html>

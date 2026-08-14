@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>樂游10招 戲水安全互動學習網</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #f0fdf4;
+    }
+    .pulse-btn:hover {
+      transform: scale(1.03);
+    }
+    .card-shadow {
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-sky-50 text-slate-800 min-h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // 樂游10招資料集（適性化簡化文字，搭配明確情境）
+    const safetyRules = [
+      {
+        id: 1,
+        title: "第1招：地點合法有救生員",
+        short: "去合法的游泳池或海水浴場，要有救生員和救生設備。",
+        detail: "想去玩水時，一定要選有「安全告示牌」和「救生員」駐守的地方，不要去危險的水域。",
+        icon: "fa-person-swimming",
+        badgeColor: "bg-blue-500",
+        quiz: {
+          question: "小明夏天想去玩水，他應該選擇哪裡玩水才安全？",
+          options: [
+            { text: "有救生員看守的合法游泳池或海水浴場", isCorrect: true },
+            { text: "路邊沒有救生員的深水池塘", isCorrect: false },
+            { text: "設有「危險水域禁止進入」警告牌的溪流", isCorrect: false }
+          ],
+          explanation: "玩水一定要選有合法救生員和救生設備的地方才安全喔！"
+        },
+        oxQuiz: {
+          question: "去沒有救生員的溪邊玩水很安全？",
+          answer: false,
+          explanation: "錯誤！沒有救生員的地方如果發生危險會沒有人救你，非常危險！"
+        }
+      },
+      {
+        id: 2,
+        title: "第2招：避免危險不跳水",
+        short: "不要做危險動作，絕對不可以亂跳水。",
+        detail: "水底的深度我們看不清楚，如果有石頭或水太淺，跳水很容易撞傷頭部或頸椎！",
+        icon: "fa-triangle-exclamation",
+        badgeColor: "bg-amber-500",
+        quiz: {
+          question: "在溪邊或游泳池邊，看到大家玩得很開心，可以隨便跳水嗎？",
+          options: [
+            { text: "不可以！亂跳水容易撞到石頭或水底受傷", isCorrect: true },
+            { text: "可以！只要姿勢帥氣就可以跳水", isCorrect: false },
+            { text: "可以！只要水看起來很深就能跳", isCorrect: false }
+          ],
+          explanation: "絕對不可以跳水！水底狀況不明容易撞傷頭部和身體。"
+        },
+        oxQuiz: {
+          question: "在不明水域跳水是非常危險的行為？",
+          answer: true,
+          explanation: "正確！跳水容易撞傷頭或頸椎，絕對不可以跳水。"
+        }
+      },
+      {
+        id: 3,
+        title: "第3招：湖泊溪流要小心",
+        short: "湖泊和溪流的水深變化很大，一定要格外小心。",
+        detail: "溪水看起來很淺，但底下可能突然變得很深，還有暗流會把人拉走。",
+        icon: "fa-water",
+        badgeColor: "bg-teal-500",
+        quiz: {
+          question: "在湖泊或溪流玩水時，為什麼要特別小心？",
+          options: [
+            { text: "因為水深落差很大，還可能會有看不見的暗流", isCorrect: true },
+            { text: "因為水裡有很多小魚會咬人", isCorrect: false },
+            { text: "因為湖水太熱了容易燙傷", isCorrect: false }
+          ],
+          explanation: "湖泊溪流落差很大，表面平靜底下可能很深，要非常小心！"
+        },
+        oxQuiz: {
+          question: "溪水看起來很淺，就可以放心地一直往河中央走？",
+          answer: false,
+          explanation: "錯誤！溪流水深變化很大，踩空會發生危險。"
+        }
+      },
+      {
+        id: 4,
+        title: "第4招：結伴同行不落單",
+        short: "跟好朋友或家人一起去，隨時注意彼此的位置。",
+        detail: "絕對不要一個人偷偷去玩水，大家在一起互相照顧，發生狀況才能立刻幫忙呼救。",
+        icon: "fa-user-group",
+        badgeColor: "bg-indigo-500",
+        quiz: {
+          question: "去水上樂園或海邊玩時，哪一種做法最安全？",
+          options: [
+            { text: "和朋友或家人結伴，隨時注意對方在哪裡", isCorrect: true },
+            { text: "自己一個人悄悄走遠去玩", isCorrect: false },
+            { text: "脫離大家，獨自跑到深的區域玩", isCorrect: false }
+          ],
+          explanation: "玩水一定要結伴同行，互相照顧不落單！"
+        },
+        oxQuiz: {
+          question: "自己一個人偷偷跑去河邊玩水也沒關係？",
+          answer: false,
+          explanation: "錯誤！一個人落單非常危險，發生事情會沒有人知道。"
+        }
+      },
+      {
+        id: 5,
+        title: "第5招：下水暖身不穿牛仔褲",
+        short: "下水前要先做暖身操，不可以穿牛仔褲玩水。",
+        detail: "暖身可以防止腳抽筋；牛仔褲吸水後會變得非常重，會讓你游不動而沈下去！",
+        icon: "fa-child-reaching",
+        badgeColor: "bg-emerald-500",
+        quiz: {
+          question: "下水玩水前，我們應該準備什麼？",
+          options: [
+            { text: "先做暖身運動，並穿著適當的泳衣泳褲", isCorrect: true },
+            { text: "穿著長吸水的牛仔褲下水", isCorrect: false },
+            { text: "吃得超級飽，立刻跳進水裡", isCorrect: false }
+          ],
+          explanation: "下水前要暖身防抽筋，且不能穿牛仔褲（吸水後重會沉下去）。"
+        },
+        oxQuiz: {
+          question: "穿牛仔褲下水玩水又酷又安全？",
+          answer: false,
+          explanation: "錯誤！牛仔褲吸水後會變得很沉重，會拉人下沉，非常危險！"
+        }
+      },
+      {
+        id: 6,
+        title: "第6招：水中不嬉鬧惡作劇",
+        short: "不可以把人推下水，也不可以在水中抓人嬉鬧。",
+        detail: "在水裡壓人頭或互相拉扯，很容易讓對方吸到水而嗆水抽筋或溺水。",
+        icon: "fa-ban-smoking",
+        badgeColor: "bg-rose-500",
+        quiz: {
+          question: "在游泳池裡，和同學玩遊戲時不可以做什麼事？",
+          options: [
+            { text: "不可以惡作劇把別人的頭按進水裡或互相推擠", isCorrect: true },
+            { text: "不可以跟同學揮手打招呼", isCorrect: false },
+            { text: "不可以練習漂浮浮板", isCorrect: false }
+          ],
+          explanation: "水中惡作劇（如推人、壓頭）會讓人嗆水發發生危險！"
+        },
+        oxQuiz: {
+          question: "把同學推進游泳池裡是一種好玩的遊戲？",
+          answer: false,
+          explanation: "錯誤！把人推下水會害人嗆水驚嚇，非常危險。"
+        }
+      },
+      {
+        id: 7,
+        title: "第7招：身體疲累不戲水",
+        short: "身體累了、生病或剛吃飽，不要下水游泳。",
+        detail: "身體狀況不好時體力會變差，容易在水裡抽筋或頭暈，應該在岸上休息。",
+        icon: "fa-bed",
+        badgeColor: "bg-orange-500",
+        quiz: {
+          question: "如果今天感冒生病、或是感覺身體非常累，應該怎麼做？",
+          options: [
+            { text: "先在岸上休息，今天不上水游泳", isCorrect: true },
+            { text: "堅持下水，多運動感冒就會好", isCorrect: false },
+            { text: "喝冰水後立刻跳下水", isCorrect: false }
+          ],
+          explanation: "身體疲累或生病時體力不好，容易抽筋，不應該下水！"
+        },
+        oxQuiz: {
+          question: "游得太累時，應該馬上上岸休息補充水分？",
+          answer: true,
+          explanation: "正確！累了就要立刻上岸休息，不要勉強留在水裡。"
+        }
+      },
+      {
+        id: 8,
+        title: "第8招：不泡太久防失溫",
+        short: "不要長時間泡在水裡，身體發抖要立刻上岸。",
+        detail: "泡水太久體溫會下降，如果你開始發抖、嘴唇發紫，這是「失溫」的現象，要趕快擦乾穿衣服。",
+        icon: "fa-temperature-low",
+        badgeColor: "bg-cyan-600",
+        quiz: {
+          question: "在水裡玩一段時間後，發現自己嘴唇發紫、不斷發抖，應該怎麼辦？",
+          options: [
+            { text: "立刻上岸擦乾身體，穿上保暖衣物休息", isCorrect: true },
+            { text: "繼續游快一點讓身體變熱", isCorrect: false },
+            { text: "假裝沒事，繼續泡在水裡", isCorrect: false }
+          ],
+          explanation: "發抖發紫代表失溫了，必須馬上上岸保暖！"
+        },
+        oxQuiz: {
+          question: "泡在水裡玩一整天都不用上岸休息？",
+          answer: false,
+          explanation: "錯誤！泡水過久會失溫發抖，要適時上岸休息保暖。"
+        }
+      },
+      {
+        id: 9,
+        title: "第9招：注意氣象不戲水",
+        short: "隨時注意天氣預報，颱風或下大雨絕不去玩水。",
+        detail: "山區下大雨會導致溪水暴漲，海上颱風會有大浪，氣候不好時一定要遠離水邊。",
+        icon: "fa-cloud-showers-heavy",
+        badgeColor: "bg-slate-600",
+        quiz: {
+          question: "新聞報導快要有颱風來了，或是山區開始下大雨，我們該怎麼做？",
+          options: [
+            { text: "取消去海邊或溪邊的行程，安全第一", isCorrect: true },
+            { text: "趁著有風浪去海邊抓魚", isCorrect: false },
+            { text: "去溪邊看溪水有沒有變大", isCorrect: false }
+          ],
+          explanation: "天氣不好或颱風天千萬不要去水邊，溪水暴漲非常可怕！"
+        },
+        oxQuiz: {
+          question: "下大雨時，溪水可能會快速暴漲，要趕快離開溪邊？",
+          answer: true,
+          explanation: "正確！下雨溪水暴漲速度極快，必須立刻遠離水邊。"
+        }
+      },
+      {
+        id: 10,
+        title: "第10招：學會漂浮冷靜救",
+        short: "練習漂浮技巧，如果不小心落水，保持冷靜放鬆。",
+        detail: "不小心跌進水裡時，緊張亂抓會沉更快。放鬆讓身體漂浮，大聲呼救或等待救援。",
+        icon: "fa-life-ring",
+        badgeColor: "bg-sky-500",
+        quiz: {
+          question: "如果不小心掉進水裡，最重要的第一件事是什麼？",
+          options: [
+            { text: "保持冷靜放鬆，讓身體漂浮，並大聲呼救", isCorrect: true },
+            { text: "非常緊張地四肢亂揮亂打水", isCorrect: false },
+            { text: "把嘴巴閉緊沉到水底去", isCorrect: false }
+          ],
+          explanation: "落水時千萬別慌張亂揮！保持冷靜放鬆才能浮在水面上等救生員。"
+        },
+        oxQuiz: {
+          question: "不小心落水時，越緊張用力亂抓會沉得越快？",
+          answer: true,
+          explanation: "正確！緊張亂抓會消耗體力並沉下去，放鬆才能浮起來。"
+        }
+      }
+    ];
+
+    // 音效合成器 (Web Audio API)
+    const playSound = (type) => {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+          osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+          osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+        } else if (type === 'wrong') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(220, ctx.currentTime); // A3
+          osc.frequency.setValueAtTime(180, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.35);
+        } else if (type === 'complete') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+          osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12);
+          osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.24);
+          osc.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.36);
+          gain.gain.setValueAtTime(0.4, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.6);
+        }
+      } catch(e) {
+        console.log("Audio non-interactive");
+      }
+    };
+
+    // 主應用程式元件
+    function App() {
+      const [activeTab, setActiveTab] = useState('cards'); // 'cards', 'quiz', 'ox', 'badges'
+      const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
+      const [quizScore, setQuizScore] = useState(0);
+      const [selectedOption, setSelectedOption] = useState(null);
+      const [quizAnswered, setQuizAnswered] = useState(false);
+      const [quizFinished, setQuizFinished] = useState(false);
+
+      // OX 測驗狀態
+      const [oxIndex, setOxIndex] = useState(0);
+      const [oxScore, setOxScore] = useState(0);
+      const [oxAnswered, setOxAnswered] = useState(false);
+      const [oxSelected, setOxSelected] = useState(null);
+      const [oxFinished, setOxFinished] = useState(false);
+
+      // 語音朗讀功能
+      const speakText = (text) => {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel(); // 停止先前的朗讀
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'zh-TW';
+          utterance.rate = 0.85; // 稍微放慢語速，適合輕度智障學生收聽
+          window.speechSynthesis.speak(utterance);
+        } else {
+          alert("您的瀏覽器不支援語音朗讀功能");
+        }
+      };
+
+      // 重設選擇題測驗
+      const resetQuiz = () => {
+        setCurrentQuizIndex(0);
+        setQuizScore(0);
+        setSelectedOption(null);
+        setQuizAnswered(false);
+        setQuizFinished(false);
+      };
+
+      // 重設 OX 測驗
+      const resetOx = () => {
+        setOxIndex(0);
+        setOxScore(0);
+        setOxAnswered(false);
+        setOxSelected(null);
+        setOxFinished(false);
+      };
+
+      // 處理選擇題回答
+      const handleQuizOptionClick = (index, isCorrect) => {
+        if (quizAnswered) return;
+        setSelectedOption(index);
+        setQuizAnswered(true);
+
+        if (isCorrect) {
+          playSound('correct');
+          setQuizScore(prev => prev + 1);
+        } else {
+          playSound('wrong');
+        }
+      };
+
+      // 下一題選擇題
+      const handleNextQuiz = () => {
+        if (currentQuizIndex + 1 < safetyRules.length) {
+          setCurrentQuizIndex(prev => prev + 1);
+          setSelectedOption(null);
+          setQuizAnswered(false);
+        } else {
+          setQuizFinished(true);
+          playSound('complete');
+          confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        }
+      };
+
+      // 處理 OX 回答
+      const handleOxClick = (userChoice) => {
+        if (oxAnswered) return;
+        setOxSelected(userChoice);
+        setOxAnswered(true);
+
+        const isCorrect = userChoice === safetyRules[oxIndex].oxQuiz.answer;
+        if (isCorrect) {
+          playSound('correct');
+          setOxScore(prev => prev + 1);
+        } else {
+          playSound('wrong');
+        }
+      };
+
+      // 下一題 OX
+      const handleNextOx = () => {
+        if (oxIndex + 1 < safetyRules.length) {
+          setOxIndex(prev => prev + 1);
+          setOxSelected(null);
+          setOxAnswered(false);
+        } else {
+          setOxFinished(true);
+          playSound('complete');
+          confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        }
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* 頁頭標題 */}
+          <header className="bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white rounded-3xl p-6 mb-6 shadow-xl text-center relative overflow-hidden">
+            <div className="absolute -right-6 -bottom-6 text-blue-400 opacity-20 text-9xl">
+              <i className="fa-solid fa-water"></i>
+            </div>
+            <div className="inline-block bg-amber-400 text-amber-950 font-bold px-4 py-1 rounded-full text-lg mb-2 shadow">
+              <i className="fa-solid fa-shield-halved mr-2"></i>水上安全小勇士
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-wide mb-2">
+              樂游10招 玩不溺互動學習網
+            </h1>
+            <p className="text-sky-100 text-lg md:text-xl font-medium">
+              安全的玩水，開心的回家！一起學習10個安全招式！
+            </p>
+          </header>
+
+          {/* 導覽頁籤 */}
+          <nav className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <button
+              onClick={() => { setActiveTab('cards'); window.speechSynthesis.cancel(); }}
+              className={`py-3 px-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 border-2 ${
+                activeTab === 'cards'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md scale-105'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              <i className="fa-solid fa-book-open text-xl"></i>
+              <span>10招學習卡</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('quiz'); window.speechSynthesis.cancel(); }}
+              className={`py-3 px-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 border-2 ${
+                activeTab === 'quiz'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md scale-105'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              <i className="fa-solid fa-circle-question text-xl"></i>
+              <span>情境測驗</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('ox'); window.speechSynthesis.cancel(); }}
+              className={`py-3 px-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 border-2 ${
+                activeTab === 'ox'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md scale-105'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              <i className="fa-solid fa-check-double text-xl"></i>
+              <span>快速 O/X 關</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab('badges'); window.speechSynthesis.cancel(); }}
+              className={`py-3 px-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 border-2 ${
+                activeTab === 'badges'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md scale-105'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              <i className="fa-solid fa-award text-xl"></i>
+              <span>榮譽獎牌</span>
+            </button>
+          </nav>
+
+          {/* TAB 1: 10招圖解卡 */}
+          {activeTab === 'cards' && (
+            <section className="space-y-4">
+              <div className="bg-amber-100 border-l-8 border-amber-500 text-amber-900 p-4 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <i className="fa-solid fa-lightbulb text-2xl text-amber-600"></i>
+                  <p className="font-semibold text-lg">點擊卡片上的小喇叭，可以聽語音朗讀喔！</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {safetyRules.map((rule) => (
+                  <div key={rule.id} className="bg-white rounded-2xl p-5 border-2 border-slate-200 card-shadow hover:border-blue-300 transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-2xl ${rule.badgeColor} text-white flex items-center justify-center text-xl font-extrabold shadow`}>
+                          <i className={`fa-solid ${rule.icon}`}></i>
+                        </div>
+                        <h2 className="text-xl font-bold text-slate-800">{rule.title}</h2>
+                      </div>
+                      <button
+                        onClick={() => speakText(`${rule.title}。${rule.short}。${rule.detail}`)}
+                        className="bg-sky-100 hover:bg-sky-200 text-sky-700 p-3 rounded-full transition-colors flex-shrink-0"
+                        title="朗讀內容"
+                      >
+                        <i className="fa-solid fa-volume-high text-xl"></i>
+                      </button>
+                    </div>
+                    <div className="bg-sky-50 rounded-xl p-3 mb-3 border border-sky-100">
+                      <p className="font-bold text-sky-900 text-lg">【防溺重點】</p>
+                      <p className="text-slate-800 text-lg font-medium">{rule.short}</p>
+                    </div>
+                    <p className="text-slate-600 text-base leading-relaxed">{rule.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* TAB 2: 情境測驗 (選擇題) */}
+          {activeTab === 'quiz' && (
+            <section className="bg-white rounded-3xl p-6 border-2 border-slate-200 card-shadow">
+              {!quizFinished ? (
+                <div>
+                  {/* 進度條 */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-lg font-bold text-sky-700">
+                      第 {currentQuizIndex + 1} 題 / 共 {safetyRules.length} 題
+                    </span>
+                    <span className="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-base">
+                      目前得分：{quizScore * 10} 分
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 h-4 rounded-full mb-6 overflow-hidden">
+                    <div
+                      className="bg-blue-500 h-full transition-all duration-300"
+                      style={{ width: `${((currentQuizIndex + 1) / safetyRules.length) * 100}%` }}
+                    ></div>
+                  </div>
+
+                  {/* 題目區 */}
+                  <div className="bg-sky-50 rounded-2xl p-5 mb-6 border-2 border-sky-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="bg-blue-600 text-white font-bold px-3 py-1 rounded-lg text-sm">
+                        {safetyRules[currentQuizIndex].title}
+                      </span>
+                      <button
+                        onClick={() => speakText(
+                          `${safetyRules[currentQuizIndex].quiz.question}。選項一：${safetyRules[currentQuizIndex].quiz.options[0].text}。選項二：${safetyRules[currentQuizIndex].quiz.options[1].text}。選項三：${safetyRules[currentQuizIndex].quiz.options[2].text}`
+                        )}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-base font-bold transition-all flex items-center gap-2"
+                      >
+                        <i className="fa-solid fa-volume-high"></i>
+                        <span>朗讀題目與選項</span>
+                      </button>
+                    </div>
+                    <h3 className="text-2xl font-extrabold text-slate-800 leading-snug">
+                      {safetyRules[currentQuizIndex].quiz.question}
+                    </h3>
+                  </div>
+
+                  {/* 選項列表 */}
+                  <div className="space-y-3 mb-6">
+                    {safetyRules[currentQuizIndex].quiz.options.map((option, idx) => {
+                      let btnStyle = "bg-white border-2 border-slate-300 text-slate-800 hover:bg-sky-50 hover:border-sky-400";
+                      let icon = <span className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center mr-3">{idx + 1}</span>;
+
+                      if (quizAnswered) {
+                        if (option.isCorrect) {
+                          btnStyle = "bg-emerald-50 border-4 border-emerald-500 text-emerald-900 font-bold";
+                          icon = <i className="fa-solid fa-circle-check text-emerald-600 text-2xl mr-3"></i>;
+                        } else if (selectedOption === idx) {
+                          btnStyle = "bg-rose-50 border-4 border-rose-500 text-rose-900 font-bold";
+                          icon = <i className="fa-solid fa-circle-xmark text-rose-600 text-2xl mr-3"></i>;
+                        } else {
+                          btnStyle = "bg-slate-50 border-2 border-slate-200 text-slate-400 opacity-60";
+                        }
+                      }
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleQuizOptionClick(idx, option.isCorrect)}
+                          disabled={quizAnswered}
+                          className={`w-full p-4 rounded-2xl text-xl text-left transition-all flex items-center pulse-btn ${btnStyle}`}
+                        >
+                          {icon}
+                          <span className="flex-1">{option.text}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 答題後的說明與下一題按鈕 */}
+                  {quizAnswered && (
+                    <div className="space-y-4">
+                      <div className={`p-4 rounded-2xl border-2 ${
+                        safetyRules[currentQuizIndex].quiz.options[selectedOption].isCorrect
+                          ? 'bg-emerald-100 border-emerald-300 text-emerald-900'
+                          : 'bg-rose-100 border-rose-300 text-rose-900'
+                      }`}>
+                        <div className="flex items-center gap-2 text-xl font-extrabold mb-1">
+                          {safetyRules[currentQuizIndex].quiz.options[selectedOption].isCorrect ? (
+                            <>
+                              <i className="fa-solid fa-face-smile text-emerald-600"></i>
+                              <span>太棒了！答對了！</span>
+                            </>
+                          ) : (
+                            <>
+                              <i className="fa-solid fa-face-flushed text-rose-600"></i>
+                              <span>差一點點，再加油！</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-lg font-medium">
+                          {safetyRules[currentQuizIndex].quiz.explanation}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={handleNextQuiz}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 rounded-2xl text-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        <span>{currentQuizIndex + 1 < safetyRules.length ? "下一題" : "查看測驗結果"}</span>
+                        <i className="fa-solid fa-arrow-right"></i>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* 測驗完成結果頁 */
+                <div className="text-center py-8 space-y-6">
+                  <div className="inline-block p-6 bg-yellow-100 rounded-full text-yellow-600 text-6xl shadow-inner">
+                    <i className="fa-solid fa-trophy"></i>
+                  </div>
+                  <h2 className="text-3xl font-extrabold text-slate-800">恭喜完成樂游10招情境測驗！</h2>
+                  <div className="bg-sky-50 rounded-2xl p-6 border-2 border-sky-200 max-w-md mx-auto">
+                    <p className="text-xl text-slate-600 mb-2">您的測驗總得分：</p>
+                    <p className="text-5xl font-black text-blue-600">{quizScore * 10} / 100 分</p>
+                    <p className="mt-4 text-lg font-bold text-slate-700">
+                      {quizScore === 10 ? "🌟 太強了！你是完美的戲水安全大師！" :
+                       quizScore >= 7 ? "👍 表現非常讚！你很懂得保護自己！" : "💪 再複習一下10招卡片，你一定會更厲害！"}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+                    <button
+                      onClick={resetQuiz}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-2xl text-lg flex-1 shadow transition-all"
+                    >
+                      <i className="fa-solid fa-rotate-left mr-2"></i>再測驗一次
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('cards')}
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 px-6 rounded-2xl text-lg flex-1 transition-all"
+                    >
+                      <i className="fa-solid fa-book-open mr-2"></i>返回10招卡片
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* TAB 3: 快速 O/X 關 */}
+          {activeTab === 'ox' && (
+            <section className="bg-white rounded-3xl p-6 border-2 border-slate-200 card-shadow">
+              {!oxFinished ? (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-lg font-bold text-indigo-700">
+                      O/X 闖關：第 {oxIndex + 1} 題 / 共 {safetyRules.length} 題
+                    </span>
+                    <span className="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-base">
+                      得分：{oxScore * 10} 分
+                    </span>
+                  </div>
+
+                  <div className="bg-indigo-50 rounded-2xl p-6 mb-8 border-2 border-indigo-200 text-center">
+                    <div className="flex justify-center mb-2">
+                      <button
+                        onClick={() => speakText(`${safetyRules[oxIndex].oxQuiz.question}`)}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2"
+                      >
+                        <i className="fa-solid fa-volume-high"></i>
+                        <span>朗讀題目</span>
+                      </button>
+                    </div>
+                    <p className="text-2xl md:text-3xl font-black text-slate-800 mt-3 leading-relaxed">
+                      「{safetyRules[oxIndex].oxQuiz.question}」
+                    </p>
+                  </div>
+
+                  {/* O 和 X 大按鈕 */}
+                  <div className="grid grid-cols-2 gap-6 mb-6">
+                    <button
+                      onClick={() => handleOxClick(true)}
+                      disabled={oxAnswered}
+                      className={`p-6 rounded-3xl border-4 text-center transition-all pulse-btn flex flex-col items-center justify-center gap-2 ${
+                        oxAnswered
+                          ? safetyRules[oxIndex].oxQuiz.answer === true
+                            ? 'bg-emerald-100 border-emerald-500 text-emerald-800'
+                            : oxSelected === true
+                            ? 'bg-rose-100 border-rose-500 text-rose-800'
+                            : 'bg-slate-100 border-slate-200 text-slate-400 opacity-40'
+                          : 'bg-emerald-50 border-emerald-400 text-emerald-700 hover:bg-emerald-100'
+                      }`}
+                    >
+                      <i className="fa-regular fa-circle text-6xl font-black"></i>
+                      <span className="text-3xl font-black">對 (O)</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleOxClick(false)}
+                      disabled={oxAnswered}
+                      className={`p-6 rounded-3xl border-4 text-center transition-all pulse-btn flex flex-col items-center justify-center gap-2 ${
+                        oxAnswered
+                          ? safetyRules[oxIndex].oxQuiz.answer === false
+                            ? 'bg-emerald-100 border-emerald-500 text-emerald-800'
+                            : oxSelected === false
+                            ? 'bg-rose-100 border-rose-500 text-rose-800'
+                            : 'bg-slate-100 border-slate-200 text-slate-400 opacity-40'
+                          : 'bg-rose-50 border-rose-400 text-rose-700 hover:bg-rose-100'
+                      }`}
+                    >
+                      <i className="fa-solid fa-xmark text-6xl font-black"></i>
+                      <span className="text-3xl font-black">錯 (X)</span>
+                    </button>
+                  </div>
+
+                  {/* 反饋說明 */}
+                  {oxAnswered && (
+                    <div className="space-y-4">
+                      <div className={`p-4 rounded-2xl border-2 text-lg font-bold ${
+                        oxSelected === safetyRules[oxIndex].oxQuiz.answer
+                          ? 'bg-emerald-100 border-emerald-300 text-emerald-900'
+                          : 'bg-rose-100 border-rose-300 text-rose-900'
+                      }`}>
+                        <p>{safetyRules[oxIndex].oxQuiz.explanation}</p>
+                      </div>
+
+                      <button
+                        onClick={handleNextOx}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-4 rounded-2xl text-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        <span>{oxIndex + 1 < safetyRules.length ? "下一題" : "看 O/X 闖關結果"}</span>
+                        <i className="fa-solid fa-arrow-right"></i>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 space-y-6">
+                  <div className="inline-block p-6 bg-emerald-100 rounded-full text-emerald-600 text-6xl shadow-inner">
+                    <i className="fa-solid fa-circle-check"></i>
+                  </div>
+                  <h2 className="text-3xl font-extrabold text-slate-800">完成 O/X 快速闖關！</h2>
+                  <div className="bg-indigo-50 rounded-2xl p-6 border-2 border-indigo-200 max-w-md mx-auto">
+                    <p className="text-xl text-slate-600 mb-2">闖關總得分：</p>
+                    <p className="text-5xl font-black text-indigo-600">{oxScore * 10} / 100 分</p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+                    <button
+                      onClick={resetOx}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl text-lg flex-1 shadow transition-all"
+                    >
+                      <i className="fa-solid fa-rotate-left mr-2"></i>再挑戰一次
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('quiz')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-2xl text-lg flex-1 shadow transition-all"
+                    >
+                      <i className="fa-solid fa-circle-question mr-2"></i>玩情境選擇題
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* TAB 4: 榮譽獎牌榜 */}
+          {activeTab === 'badges' && (
+            <section className="bg-white rounded-3xl p-6 border-2 border-slate-200 card-shadow text-center space-y-6">
+              <h2 className="text-3xl font-extrabold text-slate-800 flex items-center justify-center gap-2">
+                <i className="fa-solid fa-award text-amber-500"></i>
+                <span>戲水安全榮譽獎牌</span>
+              </h2>
+              <p className="text-lg text-slate-600">完成測驗就能解鎖勳章喔！看看你收集了哪些勳章：</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
+                <div className={`p-6 rounded-3xl border-4 ${quizFinished ? 'bg-amber-50 border-amber-400 text-amber-900' : 'bg-slate-100 border-slate-300 text-slate-400 opacity-60'}`}>
+                  <div className="text-5xl mb-3">
+                    <i className="fa-solid fa-medal text-amber-500"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-1">情境測驗達人</h3>
+                  <p className="text-sm font-medium">{quizFinished ? "已成功解鎖！" : "完成「情境測驗」即可解鎖"}</p>
+                </div>
+
+                <div className={`p-6 rounded-3xl border-4 ${oxFinished ? 'bg-emerald-50 border-emerald-400 text-emerald-900' : 'bg-slate-100 border-slate-300 text-slate-400 opacity-60'}`}>
+                  <div className="text-5xl mb-3">
+                    <i className="fa-solid fa-shield-cat text-emerald-500"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-1">O/X 闖關勇士</h3>
+                  <p className="text-sm font-medium">{oxFinished ? "已成功解鎖！" : "完成「O/X闖關」即可解鎖"}</p>
+                </div>
+
+                <div className={`p-6 rounded-3xl border-4 ${quizScore === 10 || oxScore === 10 ? 'bg-blue-50 border-blue-400 text-blue-900' : 'bg-slate-100 border-slate-300 text-slate-400 opacity-60'}`}>
+                  <div className="text-5xl mb-3">
+                    <i className="fa-solid fa-crown text-blue-500"></i>
+                  </div>
+                  <h3 className="text-xl font-bold mb-1">滿分水安大師</h3>
+                  <p className="text-sm font-medium">{quizScore === 10 || oxScore === 10 ? "獲得最高榮譽！" : "任一測驗拿100分即可解鎖"}</p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-200">
+                <p className="text-base text-slate-500 font-medium">
+                   提醒您：樂游10招 玩不溺，生命無價，隨時注意戲水安全！
+                </p>
+              </div>
+            </section>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
